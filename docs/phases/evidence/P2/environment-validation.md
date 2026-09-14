@@ -30,4 +30,4 @@ No formal product table, P4 schema, or business data was created. The validated 
 
 The P2 Docker runtime gate is closed. For repeat local starts on this machine while host MySQL continues to use `3306`, set `MYSQL_PORT=3307` in the ignored local `.env` file. Do not place local credentials in tracked documentation.
 
-P2 still requires a successful hosted GitHub Actions run; see `ci-validation.md`. P3 remains blocked by that separate criterion.
+The separate hosted GitHub Actions gate subsequently passed; see `ci-validation.md`. This closes P2 without starting P3.

@@ -27,5 +27,5 @@
 
 - On 2026-09-14, the repository structure, safe environment template, Compose definition, README clean-start flow, and local CI checks were completed.
 - The Docker runtime gate is complete: MySQL 8.4.9 and Redis 8.6.3 started healthy, passed connection/version checks, and remained healthy after one restart.
-- P2 remains **FAIL** only because `.github/workflows/ci.yml` has not been verified in a hosted GitHub Actions run. Local blocking checks passed, but that is not recorded as remote execution evidence.
-- Do not begin P3 until an authorized push or pull request produces a green hosted workflow run and that evidence is recorded.
+- P2 is **PASS**. GitHub Actions run `34804604715` completed successfully for commit `fd8aa10dc54fc9be53404224692371798683350d`; all blocking steps passed and inherited red baselines remained visible as non-blocking reports.
+- P2 closure does not start P3. Begin P3 only after an explicit user instruction.
