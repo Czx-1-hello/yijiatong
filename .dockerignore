@@ -1,0 +1,8 @@
+.git
+.github
+.env
+.env.*
+node_modules
+miniprogram_npm
+miniprogram_dist
+project.private.config.json

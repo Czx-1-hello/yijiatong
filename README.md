@@ -1,3 +1,50 @@
+# Clothing price comparison development workspace
+
+This repository preserves the runnable Tencent TDesign Retail Mini Program baseline while the staged project plan builds a replaceable multi-platform comparison architecture. P2 provides local infrastructure and CI only; the current Mini Program still uses Mock data and contains no real platform API integration.
+
+## Prerequisites
+
+- Node.js 24 and npm
+- Docker Desktop with the WSL2 Linux backend
+- WeChat Developer Tools for interactive Mini Program compilation and runtime verification
+
+## First-time setup
+
+```powershell
+git clone https://github.com/Tencent/tdesign-miniprogram-starter-retail.git
+cd tdesign-miniprogram-starter-retail
+npm ci
+Copy-Item .env.example .env
+```
+
+Replace every `change_me_for_local_development` value in `.env`. Do not commit or share that file.
+
+Start the development infrastructure:
+
+```powershell
+docker compose --env-file .env -f deploy/docker/compose.yaml up -d --wait
+docker compose --env-file .env -f deploy/docker/compose.yaml ps
+```
+
+Run the P2 repository checks:
+
+```powershell
+npm run verify:p2
+docker compose --env-file .env -f deploy/docker/compose.yaml config --quiet
+```
+
+Import the repository root into WeChat Developer Tools, then select **Tools -> Build npm** and compile the Mini Program. The headless `npm run build:miniprogram` command only packages npm dependencies; it does not replace Developer Tools compilation or physical-device testing.
+
+Stop the local infrastructure without deleting named volumes:
+
+```powershell
+docker compose --env-file .env -f deploy/docker/compose.yaml down
+```
+
+See `deploy/docker/README.md`, `docs/Tech-Spec.md`, and `docs/phases/P2.md` for boundaries and evidence.
+
+## Upstream starter documentation
+
 <p align="center">
   <a href="https://tdesign.tencent.com/" target="_blank">
     <img alt="TDesign Logo" width="200" src="https://tdesign.gtimg.com/site/TDesign.png">
