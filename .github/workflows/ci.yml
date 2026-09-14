@@ -58,7 +58,8 @@ jobs:
         run: docker compose --env-file .env.example -f deploy/docker/compose.yaml config --quiet
 
       - name: Build and test P3 backend
-        run: bash services/backend/mvnw -q package -Dmaven.test.skip=false -DskipTests=false
+        working-directory: services/backend
+        run: bash mvnw -q package -Dmaven.test.skip=false -DskipTests=false
 
       - name: Install locked admin dependencies
         run: pnpm --dir apps/admin install --frozen-lockfile
