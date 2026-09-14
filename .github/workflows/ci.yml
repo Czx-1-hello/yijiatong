@@ -1,0 +1,54 @@
+name: P2 Baseline CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Scan repository for secrets
+        run: npm run secret:scan
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Run JavaScript syntax check
+        run: npm run typecheck
+
+      - name: Lint maintained P2 and catalog scope
+        run: npm run lint:ci
+
+      - name: Build Mini Program npm dependencies
+        run: npm run build:miniprogram
+
+      - name: Audit production dependencies
+        run: npm run dependency:check
+
+      - name: Validate Docker Compose
+        run: docker compose --env-file .env.example -f deploy/docker/compose.yaml config --quiet
+
+      - name: Report full legacy lint baseline
+        continue-on-error: true
+        run: npm run lint:baseline
+
+      - name: Report all dependency findings
+        continue-on-error: true
+        run: npm run dependency:report
