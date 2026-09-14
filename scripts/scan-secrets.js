@@ -7,20 +7,39 @@ const projectRoot = path.resolve(__dirname, '..');
 const textExtensions = new Set([
   '.css',
   '.html',
+  '.java',
   '.js',
   '.json',
   '.less',
   '.md',
+  '.properties',
+  '.ps1',
+  '.sql',
   '.toml',
+  '.ts',
+  '.vue',
   '.wxml',
   '.wxss',
+  '.xml',
   '.yaml',
   '.yml',
 ]);
-const excludedDirectories = new Set(['.firecrawl', '.git', 'miniprogram_dist', 'miniprogram_npm', 'node_modules']);
-const allowedValueMarkers = /change_me|example|placeholder|not[_-]?a[_-]?secret|\$\{|<[^>]+>/i;
-const secretAssignment =
-  /\b(APP_?SECRET|API_?KEY|ACCESS_?TOKEN|PRIVATE_?KEY|MYSQL_(?:ROOT_)?PASSWORD|REDIS_PASSWORD)\b\s*[:=]\s*["']?([^\s"']+)/gi;
+const excludedDirectories = new Set([
+  '.firecrawl',
+  '.git',
+  'dist',
+  'miniprogram_dist',
+  'miniprogram_npm',
+  'node_modules',
+  'target',
+]);
+const excludedFiles = new Set(['project.config.json', 'project.private.config.json']);
+const trackedEnvironmentFiles = new Set(['.env.example', 'apps/admin/.env.development', 'apps/admin/.env.production']);
+const allowedValueMarkers = /change_me|disabled|example|placeholder|not[_-]?a[_-]?secret|\$\{|<[^>]+>/i;
+const secretName =
+  'APP_?SECRET|API_?KEY|ACCESS_?TOKEN|PRIVATE_?KEY|CLIENT_?SECRET|(?:DB|MYSQL(?:_ROOT)?|REDIS|ADMIN|ACTUATOR)_PASSWORD|SA_TOKEN_JWT_SECRET';
+const quotedSecretAssignment = new RegExp(`\\b(${secretName})\\b["']?\\s*[:=]\\s*["']([^"'\\r\\n]+)["']`, 'gi');
+const unquotedSecretAssignment = new RegExp(`\\b(${secretName})\\b\\s*[:=]\\s*([^\\s#]+)`, 'gi');
 const highConfidencePatterns = [
   { name: 'private key block', pattern: /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/ },
   { name: 'AWS access key', pattern: /\bAKIA[0-9A-Z]{16}\b/ },
@@ -41,13 +60,17 @@ function listFilesFromDisk(directory = projectRoot) {
 
     const relativePath = path.relative(projectRoot, absolutePath).replaceAll('\\', '/');
     const isLocalEnvironmentFile =
-      entry.name === '.env' || (entry.name.startsWith('.env.') && entry.name !== '.env.example');
-    if (!isLocalEnvironmentFile && textExtensions.has(path.extname(entry.name).toLowerCase())) {
+      entry.name === '.env' || (entry.name.startsWith('.env.') && !trackedEnvironmentFiles.has(relativePath));
+    if (!isLocalEnvironmentFile && isScannable(relativePath)) {
       files.push(relativePath);
     }
   }
 
   return files;
+}
+
+function isScannable(file) {
+  return trackedEnvironmentFiles.has(file) || textExtensions.has(path.extname(file).toLowerCase());
 }
 
 function listCandidateFiles() {
@@ -65,7 +88,8 @@ function listCandidateFiles() {
   }
 
   return files
-    .filter((file) => textExtensions.has(path.extname(file).toLowerCase()))
+    .filter(isScannable)
+    .filter((file) => !excludedFiles.has(file))
     .filter((file) => !file.startsWith('docs/phases/evidence/P0/screenshots/'));
 }
 
@@ -79,10 +103,18 @@ for (const relativePath of candidateFiles) {
     if (candidate.pattern.test(source)) findings.push(`${relativePath}: ${candidate.name}`);
   }
 
-  for (const match of source.matchAll(secretAssignment)) {
+  const assignments = [...source.matchAll(quotedSecretAssignment)];
+  if (/\.(?:env\.example|properties|toml|ya?ml)$/i.test(relativePath)) {
+    assignments.push(...source.matchAll(unquotedSecretAssignment));
+  }
+
+  for (const match of assignments) {
     const value = match[2];
     const isEscapedEnvironmentReference = value.includes('\\$\\{');
-    if (value && !allowedValueMarkers.test(value) && !isEscapedEnvironmentReference) {
+    const normalizedName = match[1].replaceAll(/[_-]/g, '').toLowerCase();
+    const normalizedValue = value.replaceAll(/[_-]/g, '').toLowerCase();
+    const isSchemaLabel = normalizedName === normalizedValue;
+    if (value && !allowedValueMarkers.test(value) && !isEscapedEnvironmentReference && !isSchemaLabel) {
       findings.push(`${relativePath}: non-placeholder ${match[1]} assignment`);
     }
   }

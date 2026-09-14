@@ -1,0 +1,150 @@
+server:
+  port: ${BACKEND_PORT:8080}
+  servlet:
+    context-path: /
+  jetty:
+    max-http-form-post-size: -1
+    threads:
+      min: 8
+      max: 256
+
+captcha:
+  enable: ${CAPTCHA_ENABLED:true}
+  type: math
+  numberLength: 1
+  charLength: 4
+
+logging:
+  level:
+    org.dromara: @logging.level@
+    org.springframework: warn
+    org.mybatis.spring.mapper: error
+  config: classpath:logback-plus.xml
+
+user:
+  password:
+    maxRetryCount: 5
+    lockTime: 10
+
+spring:
+  application:
+    name: yijiatong-admin-api
+  boot:
+    admin:
+      client:
+        username: ${ACTUATOR_USERNAME}
+        password: ${ACTUATOR_PASSWORD}
+  threads:
+    virtual:
+      enabled: false
+  task:
+    execution:
+      thread-name-prefix: async-
+      mode: force
+  messages:
+    basename: i18n/messages
+  profiles:
+    active: @profiles.active@
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+  mvc:
+    static-path-pattern: /static/**
+    format:
+      date-time: yyyy-MM-dd HH:mm:ss
+  jackson:
+    serialization:
+      indent_output: false
+      fail_on_empty_beans: false
+    deserialization:
+      fail_on_unknown_properties: false
+
+sa-token:
+  token-name: Authorization
+  is-concurrent: true
+  is-share: false
+  jwt-secret-key: ${SA_TOKEN_JWT_SECRET}
+
+security:
+  excludes:
+    - /*.html
+    - /**/*.html
+    - /**/*.css
+    - /**/*.js
+    - /favicon.ico
+    - /error
+    - /*/api-docs
+    - /*/api-docs/**
+    - /actuator/health
+    - /actuator/info
+
+mybatis-plus:
+  enableLogicDelete: true
+  mapperPackage: org.dromara.**.mapper
+  mapperLocations: classpath*:mapper/**/*Mapper.xml
+  typeAliasesPackage: org.dromara.**.domain
+  global-config:
+    dbConfig:
+      idType: ASSIGN_ID
+
+mybatis-encryptor:
+  enable: false
+  algorithm: BASE64
+  encode: BASE64
+  password: ${MYBATIS_ENCRYPT_PASSWORD:}
+  publicKey: ${MYBATIS_ENCRYPT_PUBLIC_KEY:}
+  privateKey: ${MYBATIS_ENCRYPT_PRIVATE_KEY:}
+
+api-decrypt:
+  enabled: ${API_ENCRYPT_ENABLED:false}
+  headerFlag: encrypt-key
+  publicKey: ${API_RSA_PUBLIC_KEY:}
+  privateKey: ${API_RSA_PRIVATE_KEY:}
+
+springdoc:
+  api-docs:
+    enabled: ${API_DOCS_ENABLED:false}
+  info:
+    title: Yijiatong Admin API
+    description: P3 administration and security foundation
+    version: ${project.version}
+  group-configs:
+    - group: authentication
+      packages-to-scan: org.dromara.web
+    - group: system
+      packages-to-scan: org.dromara.system
+
+xss:
+  enabled: true
+  excludeUrls:
+    - /system/notice
+
+lock4j:
+  acquire-timeout: 3000
+  expire: 30000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: WHEN_AUTHORIZED
+    logfile:
+      external-file: ./logs/sys-console.log
+
+message:
+  enabled: false
+  transport: sse
+  path: /resource/message
+  allowedOrigins: ${ADMIN_ALLOWED_ORIGINS:http://localhost:5173}
+  sse-timeout: 86400000
+  heartbeat-interval: 60
+  web-socket-send-time-limit: 10000
+  web-socket-buffer-size-limit: 64000
+
+yijiatong:
+  bootstrap-admin:
+    enabled: ${ADMIN_BOOTSTRAP_ENABLED:false}

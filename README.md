@@ -5,6 +5,7 @@ This repository preserves the runnable Tencent TDesign Retail Mini Program basel
 ## Prerequisites
 
 - Node.js 24 and npm
+- Eclipse Temurin JDK 21
 - Docker Desktop with the WSL2 Linux backend
 - WeChat Developer Tools for interactive Mini Program compilation and runtime verification
 
@@ -42,6 +43,30 @@ docker compose --env-file .env -f deploy/docker/compose.yaml down
 ```
 
 See `deploy/docker/README.md`, `docs/Tech-Spec.md`, and `docs/phases/P2.md` for boundaries and evidence.
+
+## P3 administration foundation
+
+P3 adds a bounded RuoYi-Vue-Plus backend under `services/backend/` and its matching Plus-UI application under `apps/admin/`. The existing Mini Program remains at the repository root and is not coupled to the administration runtime.
+
+After starting the P2 MySQL and Redis containers, initialize `services/backend/script/sql/p3_foundation.sql` once in an empty local database. Copy `.env.example` to the ignored `.env`, replace every placeholder locally, and load those values into the backend process environment without printing them. Then run:
+
+```powershell
+Set-Location services/backend
+.\mvnw.cmd clean package '-Dmaven.test.skip=false' '-DskipTests=false'
+java -jar .\ruoyi-admin\target\ruoyi-admin.jar
+```
+
+In another terminal:
+
+```powershell
+Set-Location apps/admin
+corepack pnpm install --frozen-lockfile
+corepack pnpm run lint
+.\node_modules\.bin\vue-tsc.cmd --noEmit
+corepack pnpm run dev -- --host 127.0.0.1 --port 5173
+```
+
+There is no repository default administrator password. A local administrator is activated only when `ADMIN_BOOTSTRAP_ENABLED=true` and valid process-level `ADMIN_USERNAME`/`ADMIN_PASSWORD` values are supplied. Actuator health endpoints use separate process-level Basic Auth credentials. See `docs/phases/P3.md` for the complete boundary and verification evidence.
 
 ## Upstream starter documentation
 

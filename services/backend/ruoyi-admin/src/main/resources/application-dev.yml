@@ -1,0 +1,64 @@
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    dynamic:
+      primary: master
+      strict: true
+      datasource:
+        master:
+          type: ${spring.datasource.type}
+          driverClassName: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:yijiatong}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
+          username: ${DB_USERNAME}
+          password: ${DB_PASSWORD}
+      hikari:
+        maxPoolSize: 20
+        minIdle: 2
+        connectionTimeout: 30000
+        validationTimeout: 5000
+        idleTimeout: 600000
+        maxLifetime: 1800000
+        keepaliveTime: 30000
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DATABASE:0}
+      username: ${REDIS_USERNAME:default}
+      password: ${REDIS_PASSWORD}
+      timeout: 10s
+      ssl.enabled: false
+
+redisson:
+  keyPrefix: ${REDIS_KEY_PREFIX:yijiatong:}
+  threads: 4
+  nettyThreads: 8
+  singleServerConfig:
+    clientName: yijiatong-admin-api
+    connectionMinimumIdleSize: 2
+    connectionPoolSize: 16
+    idleConnectionTimeout: 10000
+    timeout: 3000
+    subscriptionConnectionPoolSize: 8
+
+mybatis-plus:
+  sql-log:
+    enabled: false
+    output: console
+
+management:
+  endpoint:
+    health:
+      show-details: ALWAYS
+
+mail:
+  enabled: false
+
+sms:
+  config-type: yaml
+  restricted: true
+  minute-max: 1
+  account-max: 30
+
+justauth:
+  address: ${ADMIN_UI_URL:http://localhost:5173}

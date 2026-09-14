@@ -29,3 +29,13 @@
 - The Docker runtime gate is complete: MySQL 8.4.9 and Redis 8.6.3 started healthy, passed connection/version checks, and remained healthy after one restart.
 - P2 is **PASS**. GitHub Actions run `34804604715` completed successfully for commit `fd8aa10dc54fc9be53404224692371798683350d`; all blocking steps passed and inherited red baselines remained visible as non-blocking reports.
 - P2 closure does not start P3. Begin P3 only after an explicit user instruction.
+
+## P3 status
+
+- On 2026-09-14, P3 completed locally on branch `feat/p3-backend-admin-foundation` from personal `main` commit `64f0f92caf5ab96ff63aa9a67ba97f8156149522`.
+- P3 is **PASS**. It vendors the official RuoYi-Vue-Plus backend v6.0.0 and matching Plus-UI v6.0.0-Vue admin foundation under `services/backend/` and `apps/admin/` while preserving the root Mini Program and Mock Catalog boundary.
+- The locked P3 runtime is Eclipse Temurin JDK 21.0.12+8, Maven 3.9.12, Spring Boot 4.1.0, Node 24.15.0, pnpm 10.34.5, MySQL 8.4.9, and Redis 8.6.3.
+- Local runtime evidence confirms backend startup, protected Actuator health, MySQL/Redis health, administrator login through the admin proxy, super-administrator RBAC, system/monitor menus, and login/operation audit persistence.
+- The seed administrator remains disabled until explicit environment bootstrap. Database, Redis, JWT, Actuator, and bootstrap credentials are process environment values only; no credential value is stored here.
+- The admin production dependency audit retains one high-severity transitive `nanoid <3.3.18` finding through the Vue compiler/PostCSS path. P3 did not upgrade the pinned upstream stack; track remediation in an approved dependency/security task.
+- P3 has not been committed, pushed, or merged. Hosted P3 CI is therefore unverified, and no remote result should be claimed before a later Git closure task.

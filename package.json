@@ -14,6 +14,7 @@
     "dependency:check": "npm audit --omit=dev --audit-level=high",
     "dependency:report": "npm audit --audit-level=high",
     "secret:scan": "node scripts/scan-secrets.js",
+    "verify:p3:structure": "node --test tests/p3-foundation.test.js && node scripts/check-p3-architecture.js",
     "verify:p2": "npm run test && npm run typecheck && npm run lint:ci && npm run build:miniprogram && npm run dependency:check && npm run secret:scan",
     "check": "node config/eslintCheck.js",
     "prepare": "husky install",
